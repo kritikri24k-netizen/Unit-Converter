@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Digital Unit Converter</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #c8f7c5;
+        overflow: hidden;
+    }
+
+    .symbols span {
+        position: absolute;
+        font-size: 24px;
+        animation: float 6s infinite linear;
+        opacity: 0.4;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(100vh) rotate(0deg); }
+        100% { transform: translateY(-10vh) rotate(360deg); }
+    }
+
+    .container {
+        position: relative;
+        z-index: 2;
+        width: 400px;
+        margin: 100px auto;
+        text-align: center;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .box {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        font-size: 16px;
+        border-radius: 6px;
+        border: none;
+        background: white;
+        outline: none;
+    }
+
+    .unit-box {
+        display: none;
+    }
+
+    select {
+        width: 48%;
+        padding: 10px;
+        margin: 5px 1%;
+        border-radius: 6px;
+        border: none;
+    }
+
+    .output-container {
+        position: relative;
+    }
+
+    .speaker {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    .formula {
+        margin-top: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="symbols">
+    <span style="left:10%">+</span>
+    <span style="left:20%">×</span>
+    <span style="left:30%">÷</span>
+    <span style="left:40%">=</span>
+    <span style="left:50%">1</span>
+    <span style="left:60%">2</span>
+    <span style="left:70%">3</span>
+    <span style="left:80%">%</span>
+    <span style="left:90%">√</span>
+</div>
+
+<div class="container">
+    <h1>Unit Converter</h1>
+
+    <input type="number" id="inputValue" class="box" placeholder="Enter value">
+
+    <!-- Units appear AFTER input -->
+    <div class="unit-box" id="unitBox">
+        <select id="fromUnit">
+            <option value="">From</option>
+            <option value="kg">Kilogram</option>
+            <option value="g">Gram</option>
+            <option value="mg">Milligram</option>
+            <option value="lb">Pound</option>
+        </select>
+
+        <select id="toUnit">
+            <option value="">To</option>
+            <option value="kg">Kilogram</option>
+            <option value="g">Gram</option>
+            <option value="mg">Milligram</option>
+            <option value="lb">Pound</option>
+        </select>
+    </div>
+
+    <div class="output-container">
+        <input type="text" id="outputValue" class="box" placeholder="Result" readonly>
+        <span class="speaker" onclick="speakOutput()">🔊</span>
+    </div>
+
+    <div class="formula" id="formulaText">
+        Enter value and select units
+    </div>
+</div>
+
+<script>
+    const inputValue = document.getElementById("inputValue");
+    const outputValue = document.getElementById("outputValue");
+    const fromUnit = document.getElementById("fromUnit");
+    const toUnit = document.getElementById("toUnit");
+    const unitBox = document.getElementById("unitBox");
+    const formulaText = document.getElementById("formulaText");
+
+    const units = {
+        kg: 1,
+        g: 1000,
+        mg: 1000000,
+        lb: 2.20462
+    };
+
+    inputValue.addEventListener("input", () => {
+        if (inputValue.value !== "") {
+            unitBox.style.display = "block";
+        } else {
+            unitBox.style.display = "none";
+            outputValue.value = "";
+            formulaText.innerText = "Enter value and select units";
+        }
+    });
+
+    function convert() {
+        if (!fromUnit.value || !toUnit.value) return;
+
+        let value = inputValue.value;
+        let result = value * (units[toUnit.value] / units[fromUnit.value]);
+        outputValue.value = result.toFixed(4);
+
+        formulaText.innerText =
+            `Formula: value × (${units[toUnit.value]} ÷ ${units[fromUnit.value]})`;
+    }
+
+    fromUnit.addEventListener("change", convert);
+    toUnit.addEventListener("change", convert);
+
+    function speakOutput() {
+        if (outputValue.value === "") return;
+
+        const speech = new SpeechSynthesisUtterance(
+            `The result is ${outputValue.value} ${toUnit.options[toUnit.selectedIndex].text}`
+        );
+        window.speechSynthesis.speak(speech);
+    }
+
+    document.querySelectorAll(".symbols span").forEach(s => {
+        s.style.animationDelay = Math.random() * 5 + "s";
+    });
+</script>
+
+</body>
+</html>
